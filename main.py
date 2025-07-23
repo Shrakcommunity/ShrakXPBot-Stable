@@ -1,8 +1,11 @@
-
 import telebot
 import json
 import os
 import time
+
+# 👇 Ajoute cette ligne pour garder le bot actif sur Render
+from keep_alive import keep_alive
+keep_alive()
 
 # 🔐 Your BotFather token here
 TOKEN = os.getenv("BOT_TOKEN")
