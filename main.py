@@ -5,8 +5,8 @@ import os
 import time
 
 # 🔐 Your BotFather token here
-API_TOKEN = '7671707054:AAEiNrdSrcj-p5-4KybQX_n3awjQKQqppFw'
-bot = telebot.TeleBot(API_TOKEN)
+TOKEN = os.getenv("BOT_TOKEN")
+bot = telebot.TeleBot(TOKEN)
 DATA_FILE = 'xp_data.json'
 
 # 📥 Load data (with error handling)
