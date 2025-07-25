@@ -127,4 +127,9 @@ def handle_message(message):
 
 # ▶️ Start the bot
 print("🔥 ShrakXP Bot is running...")
-bot.polling()
+try:
+    print("✅ Bot is polling now...")
+    bot.polling(none_stop=True)
+except Exception as e:
+    print(f"❌ Bot crashed with error: {e}")
+
