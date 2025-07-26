@@ -2,6 +2,7 @@ import telebot
 import json
 import os
 import time
+import subprocess
 
 # 👇 Ajoute cette ligne pour garder le bot actif sur Render
 from keep_alive import keep_alive
@@ -23,10 +24,27 @@ def load_data():
             return {}
     return {}
 
-# 💾 Save data
+# 💾 Save data to JSON + push to GitHub
 def save_data(data):
     with open(DATA_FILE, 'w') as f:
-        json.dump(data, f)
+        json.dump(data, f, indent=4)
+    commit_and_push_xp_data()
+
+# 🔁 Commit and push to GitHub
+def commit_and_push_xp_data():
+    try:
+        subprocess.run(["git", "config", "--global", "user.name", "ShrakBot"], check=True)
+        subprocess.run(["git", "config", "--global", "user.email", "shrakbot@example.com"], check=True)
+        subprocess.run(["git", "add", DATA_FILE], check=True)
+        subprocess.run(["git", "commit", "-m", "Sauvegarde auto du fichier XP"], check=True)
+
+        github_token = os.environ.get("GITHUB_TOKEN")
+        repo_url = f"https://{github_token}@github.com/Shrakcommunity/ShrakXPBot-Stable.git"
+        subprocess.run(["git", "push", repo_url], check=True)
+
+        print("✅ Données XP poussées sur GitHub.")
+    except subprocess.CalledProcessError as e:
+        print(f"[ERREUR GIT] : {e}")
 
 # 🧠 Titles based on level
 def get_title(level):
@@ -43,7 +61,7 @@ def get_title(level):
     else:
         return "Dragon of the Abyss 🐉"
 
-# 📊 /level command (auto-delete, safe)
+# 📊 /level command
 @bot.message_handler(commands=['level'])
 def level_command(message):
     user_id = str(message.from_user.id)
@@ -63,7 +81,7 @@ def level_command(message):
     time.sleep(3)
     bot.delete_message(chat_id=message.chat.id, message_id=sent.message_id)
 
-# 🏆 /top command (auto-delete)
+# 🏆 /top command
 @bot.message_handler(commands=['top'])
 def top_command(message):
     data = load_data()
@@ -87,7 +105,7 @@ def top_command(message):
     time.sleep(3)
     bot.delete_message(chat_id=message.chat.id, message_id=sent.message_id)
 
-# 🧪 Handle XP and level up messages with logging
+# 🧪 Handle XP and level up
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     if message.chat.type not in ['group', 'supergroup']:
@@ -132,4 +150,3 @@ try:
     bot.polling(none_stop=True)
 except Exception as e:
     print(f"❌ Bot crashed with error: {e}")
-
